@@ -2,11 +2,11 @@
 	position: fixed;
 	top: 60px;
 	float: left;
+	width:18%;
 }
 
 .sidebar li {
 	margin-top: 10px;
-	width: 20%;
 }
 
 .main {

@@ -22,6 +22,16 @@
 </head>
 
 <body>
+	<div class="templates" style="display: none">
+		<li class="place">
+			<div class="input-group">
+				<span class="input-group-addon"> <input class="point-checkbox" type="checkbox"
+					aria-label="...">
+				</span> <input type="text" class="form-control" aria-label="...">
+			</div> <!-- /input-group -->
+		</li>
+	</div>
+
 
 	<nav class="navbar navbar-inverse navbar-fixed-top">
 		<div class="container-fluid">
@@ -55,46 +65,14 @@
 		<div class="row">
 			<div class="sidebar">
 				<ul class="nav nav-sidebar">
-					<li>
-						<div class="input-group">
-							<span class="input-group-addon"> <input type="checkbox"
-								aria-label="...">
-							</span> <input type="text" class="form-control" aria-label="...">
-						</div> <!-- /input-group -->
-					</li>
-					<li>
-						<div class="input-group">
-							<span class="input-group-addon"> <input type="checkbox"
-								aria-label="...">
-							</span> <input type="text" class="form-control" aria-label="...">
-						</div> <!-- /input-group -->
-					</li>
-					<li>
-						<div class="input-group">
-							<span class="input-group-addon"> <input type="checkbox"
-								aria-label="...">
-							</span> <input type="text" class="form-control" aria-label="...">
-						</div> <!-- /input-group -->
-					</li>
-					<li>
-						<div class="input-group">
-							<span class="input-group-addon"> <input type="checkbox"
-								aria-label="...">
-							</span> <input type="text" class="form-control" aria-label="...">
-						</div> <!-- /input-group -->
-					</li>
-					<li>
-						<div class="input-group">
-							<span class="input-group-addon"> <input type="checkbox"
-								aria-label="...">
-							</span> <input type="text" class="form-control" aria-label="...">
-						</div> <!-- /input-group -->
-					</li>
+
 				</ul>
 
 			</div>
 			<div class="main">
-				<div id="map-canvas"></div>	
+				<div id="map-canvas">
+
+				</div>
 			</div>
 		</div>
 	</div>
@@ -104,24 +82,70 @@
 
 	<!-- Latest compiled and minified JavaScript -->
 	<script
-		src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-		
+		src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script><script type="text/javascript" src="custom.js"></script>
 		
 		    <script type="text/javascript"
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBYLLOIglMEVLtaW3lYzvip_UwlfsYpT7A">
     </script>
     <script type="text/javascript">
-      function initialize() {
-        var mapOptions = {
-          center: { lat: -34.397, lng: 150.644},
-          zoom: 8
-        };
-        var map = new google.maps.Map(document.getElementById('map-canvas'),
-            mapOptions);
-      }
-      google.maps.event.addDomListener(window, 'load', initialize);
+    var directionsDisplay;
+    var directionsService = new google.maps.DirectionsService();
+    var map;
+
+    function initialize() {
+      directionsDisplay = new google.maps.DirectionsRenderer();
+      var chicago = new google.maps.LatLng(41.850033, -87.6500523);
+      var mapOptions = {
+        zoom:7
+      };
+      map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+      directionsDisplay.setMap(map);
+      
+      //calcRoute();
+    }
+
+    function calcRoute() {
+        var request = {
+                origin:'52.42937391, 16.81',
+                waypoints: [],
+                destination:'52.39036113, 16.9662543',
+                travelMode: google.maps.TravelMode.DRIVING
+            };
+    	
+        
+        var lentthOfEl = $('.sidebar input[type="text"]').length;
+        
+        
+        
+		$('.sidebar input[type="text"]').each(function(index) {
+			var location = $(this).attr('data-location');
+			console.log(location);
+			if (index == 0) {
+				request.origin = location;
+			}
+	
+			else if (lentthOfEl - 1 == index) {
+				request.destination = location;
+			}	else {
+				request.waypoints.push({location: location, stopover: false});
+			}
+			
+		})
+    	
+      //var request = {
+        //  origin:'52.42937391, 16.81',
+        //  waypoints: [{location:'52.33152751, 16.92945274', stopover:false}],
+       //   destination:'52.39036113, 16.9662543',
+      //    travelMode: google.maps.TravelMode.DRIVING
+     // };
+      directionsService.route(request, function(response, status) {
+        if (status == google.maps.DirectionsStatus.OK) {
+          directionsDisplay.setDirections(response);
+        }
+      });
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
     </script>
-    
-    <script type="text/javascript" src="custom.js"></script>
 </body>
 </html>
