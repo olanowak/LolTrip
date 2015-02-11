@@ -1,8 +1,14 @@
 package eu.locloud.hackathon;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -31,7 +37,73 @@ public class MetadataDownloader {
     public static void main(String[] args) {
         MetadataDownloader downloader = new MetadataDownloader();
         List<String> downloadData = downloader.downloadData(1367);
-        System.out.println("sample data:" + downloadData.get(0));
+
+        int i=0;
+//        for(String s: downloadData){
+//            saveFile(s, "file" + i++);
+//        }
+
+        SolrIndexer indexer = new SolrIndexer();
+        for(String s: downloadData){
+
+            String coverage = adjustCoverage(getCoverage(s));
+            indexer.sendData(s,  "lo_" + i++,coverage );
+        }
+
+//        String cov = "34.938019, 32.976517";
+//        for(int x=0;x<10;x++) {
+//            System.out.println((cov));
+//            System.out.println(adjustCoverage(cov));
+//        }
+    }
+
+    public static String adjustCoverage(String coverage){
+        String[] parts = coverage.split(",");
+
+        double x = Double.parseDouble(parts[0]);
+        double y = Double.parseDouble(parts[1]);
+        Random r = new Random();
+        double rangeMin = -0.8;
+        double rangeMax = 0.8;
+        x += (rangeMin + (rangeMax - rangeMin) * r.nextDouble());
+        y += (rangeMin + (rangeMax - rangeMin) * r.nextDouble());
+
+        return String.valueOf(x) + ", " + String.valueOf(y);
+
+    }
+
+
+
+    public static String getCoverage(String data){
+        String regex = "<dc:coverage>(.*)</dc:coverage>";
+
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(data);
+        if (matcher.find())
+           return matcher.group(1);
+        return "";
+    }
+
+
+    public static void saveFile(String content, String name){
+        try {
+            File file = new File("/home/ola/IdeaProjects/LolTrip/java-app/target/data/"+ name + ".xml");
+
+//            if file doesnt exists, then create it
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            System.out.println(file.getAbsoluteFile());
+            FileWriter fw = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(content);
+            bw.close();
+
+            System.out.println("Done");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public List<String> downloadData(int packageId) {
