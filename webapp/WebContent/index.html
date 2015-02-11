@@ -119,6 +119,8 @@
         
 		$('.sidebar input[type="text"]').each(function(index) {
 			var location = $(this).attr('data-location');
+			var title = $(this).attr('data-title');
+			
 			console.log(location);
 			if (index == 0) {
 				request.origin = location;
@@ -129,6 +131,17 @@
 			}	else {
 				request.waypoints.push({location: location, stopover: false});
 			}
+			
+			var tab = location.split(',');
+			var myLatlng = new google.maps.LatLng(parseFloat(tab[0]), parseFloat(tab[1]));
+			
+			console.log(myLatlng);
+			
+			  var marker = new google.maps.Marker({
+			      position: myLatlng,
+			      map: map,
+			      title: title
+			  });
 			
 		})
     	
